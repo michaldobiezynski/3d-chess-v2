@@ -11,18 +11,17 @@ export type FigureType = {
   color: 'b' | 'w'
 }
 
-export type SceneBackgrounds = 
-  'apartment' |  
-  'city' |
-  'dawn' |
-  'forest' |
-  'lobby' |
-  'night' |
-  'park' |
-  'studio' |
-  'sunset' |
-  'warehouse' 
-
+export type SceneBackgrounds =
+  | 'apartment'
+  | 'city'
+  | 'dawn'
+  | 'forest'
+  | 'lobby'
+  | 'night'
+  | 'park'
+  | 'studio'
+  | 'sunset'
+  | 'warehouse'
 
 type BoardStateType = {
   board: BoardDesk
@@ -36,7 +35,6 @@ type BoardStateType = {
   isCheck: boolean
   isMate: boolean
   sceneBackground: SceneBackgrounds
-  
 }
 
 const initialState: BoardStateType = {
@@ -68,17 +66,25 @@ export const gameSlice = createSlice({
   reducers: {
     moveFigure: (state, action: PayloadAction<{ target: Square }>) => {
       if (state.selectedCell && state.gameType === 'singlePlayer') {
-        chess.move({ from: state.selectedCell, to: action.payload.target, promotion: 'q' })
+        chess.move({
+          from: state.selectedCell,
+          to: action.payload.target,
+          promotion: 'q',
+        })
         state.selectedCell = null
         state.availableMoves = []
         state.history = chess.history({ verbose: true })
-        state.whoseMove === 'w' ? state.whoseMove = 'b' : state.whoseMove = 'w'
+        state.whoseMove === 'w' ? (state.whoseMove = 'b') : (state.whoseMove = 'w')
         state.isCheck = chess.in_check()
         state.isMate = chess.game_over()
         state.figures = chess.board()
       }
       if (state.gameType === 'AI' && state.selectedCell) {
-        chess.move({ from: state.selectedCell, to: action.payload.target, promotion: 'q' })
+        chess.move({
+          from: state.selectedCell,
+          to: action.payload.target,
+          promotion: 'q',
+        })
         state.selectedCell = null
         state.availableMoves = []
         state.history = chess.history({ verbose: true })
@@ -94,7 +100,11 @@ export const gameSlice = createSlice({
       const colorOfSelectedFigure = chess.get(action.payload)?.color
       if (colorOfSelectedFigure === state.whoseMove) {
         state.selectedCell = action.payload
-        state.availableMoves = chess.moves({ square: action.payload, verbose: true, legal: true })
+        state.availableMoves = chess.moves({
+          square: action.payload,
+          verbose: true,
+          legal: true,
+        })
       }
     },
     setGameType: (state, action: PayloadAction<'singlePlayer' | 'AI'>) => {
@@ -102,21 +112,21 @@ export const gameSlice = createSlice({
       chess = new Chess()
       state.figures = chess.board()
       state.selectedCell = null
-      state.history =[]
+      state.history = []
       state.whoseMove = 'w'
     },
     setSceneBackground: (state, action: PayloadAction<SceneBackgrounds>) => {
       state.sceneBackground = action.payload
     },
-    newGame: (state) => {
+    newGame: state => {
       chess = new Chess()
       state.figures = chess.board()
       state.selectedCell = null
       state.history = []
       state.whoseMove = 'w'
-    }
+    },
   },
 })
 
-export const { setSelectCell, moveFigure, setGameType, setSceneBackground, newGame } = gameSlice.actions
-
+export const { setSelectCell, moveFigure, setGameType, setSceneBackground, newGame } =
+  gameSlice.actions
